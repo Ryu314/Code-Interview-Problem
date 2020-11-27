@@ -1,0 +1,100 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
+
+public class Main {
+  /**
+   * Iterate through each line of input.
+   */
+  public static void main(String[] args) throws IOException {
+    InputStreamReader reader = new InputStreamReader(System.in, StandardCharsets.UTF_8);
+    BufferedReader in = new BufferedReader(reader);
+    String line;
+    while ((line = in.readLine()) != null) {
+      Main.matchBenchmark(line);
+    }
+  }
+  
+  public static void matchBenchmark(String input) {
+    /*Splits array into parts, before being the portfolio and after being the benchmark*/
+    String[] arr = input.split(":");
+    String[] before = arr[0].split("\\|");
+    String[] after = arr[1].split("\\|");
+    
+    /*Complete array containing all possible asset types*/
+    String[] all = new String[]{"Google,BOND,0","Google,STOCK,0","Microsoft,BOND,0","Microsoft,STOCK,0","Vodafone,BOND,0","Vodafone,STOCK,0"};
+    
+    /*Create arrays containing all the asset types not in the portfolio and benchmark*/
+    List<String> notBefore = new ArrayList<>(Arrays.asList(all));
+    List<String> notAfter = new ArrayList<>(Arrays.asList(all));
+    for(int i = 0; i < all.length; i++){
+        for(int j = 0; j < before.length; j++){
+            String[] x = before[j].split(",");
+            String[] y = notBefore.get(i).split(",");
+            //System.out.println(x[0] + " " + y[0] + " " + x[1] + " " + y[1]);
+            if(x[0].equals(y[0]) && x[1].equals(y[1])){
+                //System.out.println("Match found");
+                notBefore.set(i, "blank");
+            }
+        }
+        for(int k = 0; k < after.length; k++){
+            String[] m = after[k].split(",");
+            String[] n = notAfter.get(i).split(",");
+            //System.out.println(x[0] + " " + y[0] + " " + x[1] + " " + y[1]);
+            if(m[0].equals(n[0]) && m[1].equals(n[1])){
+                //System.out.println("Match found");
+                notAfter.set(i, "blank");
+            }
+        }
+    }
+    //System.out.println(notBefore);
+    //System.out.println(notAfter);
+    
+    /*Adding elements from Not Arrays to so portfolio and benchmark have all asset types included*/
+    List<String> beforeList = new ArrayList<>(Arrays.asList(before));
+    List<String> afterList = new ArrayList<>(Arrays.asList(after));
+    for(int i = 0; i < all.length; i++){
+        if(!notBefore.get(i).equals("blank")){
+            beforeList.add(notBefore.get(i));
+        }
+        if(!notAfter.get(i).equals("blank")){
+            afterList.add(notAfter.get(i));
+        }
+    }
+    //System.out.println(beforeList);
+    //System.out.println(afterList);
+    before = beforeList.toArray(before);
+    after = afterList.toArray(after);
+    
+    /*Sorting portfolio and benchmark so assets are in alphabetical order with bonds before stocks*/
+    Arrays.sort(before);
+    Arrays.sort(after);
+    /*for(int i = 0; i < before.length; i++){
+        System.out.print(before[i] + " ");
+    }
+    System.out.println("");
+    for(int i = 0; i < after.length; i++){
+        System.out.print(after[i] + " ");
+    }*/
+    
+    /*Comparing elements in portfolio and benchmark to gauge which transactions should be done*/
+    for(int i = 0; i < before.length; i++){
+      String[] a = before[i].split(",");
+      String[] b = after[i].split(",");
+      int diff = Integer.parseInt(a[2]) - Integer.parseInt(b[2]);
+      if(diff > 0){
+        System.out.println("SELL," + a[0] + "," + a[1] + "," + diff);
+      }
+      else if(diff < 0){
+        System.out.println("BUY," + a[0] + "," + a[1] + "," + diff * -1);
+      }
+    }
+    // Access your code here. Feel free to create other classes as required
+  }
+  
+
+}
